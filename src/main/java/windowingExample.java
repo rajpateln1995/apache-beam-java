@@ -3,10 +3,13 @@ import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
+import org.apache.beam.sdk.transforms.Combine;
+import org.apache.beam.sdk.transforms.Count;
 import org.apache.beam.sdk.transforms.MapElements;
 import org.apache.beam.sdk.transforms.SimpleFunction;
 import org.apache.beam.sdk.transforms.windowing.FixedWindows;
 import org.apache.beam.sdk.transforms.windowing.Window;
+import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.joda.time.Duration;
 
@@ -24,7 +27,12 @@ public class windowingExample {
 
         PCollection<List<String>> FixedWindow = keyValue.apply(Window.<List<String>>into(FixedWindows.of(Duration.standardDays(365))));
 
-        PCollection<List<String>> output = FixedWindow.apply(MapElements.via(new print()));
+//        Trying to count elements in each window here
+        PCollection<Long> count = FixedWindow.apply(Count.globally());
+
+        PCollection<Long> output = count.apply(MapElements.via(new print()));
+
+
 
         p.run();
 
@@ -43,10 +51,10 @@ class KVPairs extends SimpleFunction<String , List<String>> {
     }
 }
 
-class print extends SimpleFunction<List<String> , List<String>> {
+class print extends SimpleFunction<Long , Long> {
 
     @Override
-    public List<String> apply(List<String> input) {
+    public Long apply(Long input) {
         System.out.println(input);
 
         return input;
