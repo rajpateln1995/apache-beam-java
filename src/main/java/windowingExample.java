@@ -22,9 +22,9 @@ public class windowingExample {
 
         PCollection<List<String>> keyValue = dailyData.apply(MapElements.via(new KVPairs()));
 
-        PCollection<List<String>> FixedWindow = keyValue.apply(Window.<String>into(FixedWindows.of(Duration.standardDays(365))));
+        PCollection<List<String>> FixedWindow = keyValue.apply(Window.<List<String>>into(FixedWindows.of(Duration.standardDays(365))));
 
-        PCollection<List<String>> output = keyValue.apply(MapElements.via(new print()));
+        PCollection<List<String>> output = FixedWindow.apply(MapElements.via(new print()));
 
         p.run();
 
